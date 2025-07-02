@@ -13,7 +13,6 @@ id      [a-z|_][a-z0-9]*
 
 %%
 
-// Values
 {num}+              { 
 		yylval.intval = atoi( yytext );
 		return INTVAL; 
@@ -24,7 +23,6 @@ id      [a-z|_][a-z0-9]*
 		return FLOATVAL; 
 }
 
-// Arithmetic ops
 "+"                 { return PLUS; }
 "-"                 { return MINUS; }
 "*"                 { return STAR; }

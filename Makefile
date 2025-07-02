@@ -1,4 +1,4 @@
-TARGET := +cscript
+TARGET := +cscript.exe
 CC := gcc
 LEX := flex
 YACC := bison

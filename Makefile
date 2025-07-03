@@ -1,34 +1,34 @@
-TARGET := +cscript.exe
+TARGET := libcscript.so
 CC := gcc
 LEX := flex
 YACC := bison
 RM := rm -f
 
 # -MMD and -MP track header changes
-CFLAGS := -Wall -Wextra -g -MMD -MP 
+CFLAGS := -Wall -Wextra -g -MMD -MP -fPIC
 CPPFLAGS := -I .
-LDFLAGS :=
+LDFLAGS := -shared
 MAKEFLAGS += --no-print-directory
 YACCFLAGS := -Wcounterexamples
 
-LIBS := reis
+LIBS := -lreis -lfl -lm
 
-SRCS := main.c
-OBJS := main.o
-LEX_SRCS := cscript.l
-LEX_GEN := cscript.lex.c
+SRCS := src/cscript.c
+OBJS := src/cscript.o
+LEX_SRCS := src/cscript.l
+LEX_GEN := src/cscript.lex.c
 LEX_GEN_H := cscript_lexer.h
-LEX_OBJ := cscript.lex.o
-YACC_SRCS := cscript.y
-YACC_GEN := cscript.yacc.c
+LEX_OBJ := src/cscript.lex.o
+YACC_SRCS := src/cscript.y
+YACC_GEN := src/cscript.yacc.c
 YACC_GEN_H := cscript_parser.h
-YACC_OBJ := cscript.yacc.o
+YACC_OBJ := src/cscript.yacc.o
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS) $(LEX_OBJ) $(YACC_OBJ)
-	$(CC) -o $(TARGET) $(OBJS) $(LEX_OBJ) $(YACC_OBJ) -lfl -lm
-	$(info CREATED $(TARGET))
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LEX_OBJ) $(YACC_OBJ) $(LIBS) 
+	$(info CREATED SHARED LIBRARY $(TARGET))
 
 %.o: %.c $(LEX_GEN) $(YACC_GEN)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
@@ -51,7 +51,8 @@ $(YACC_GEN): $(YACC_SRCS)
 	$(info GENERATED YACC FILE $@)
 
 clean:
-	$(RM) $(OBJS) $(LEX_OBJ) $(LEX_GEN) $(LEX_GEN_H) $(YACC_OBJ) $(YACC_GEN) $(YACC_GEN_H) *.d
+	$(RM) $(OBJS) $(LEX_OBJ) $(LEX_GEN) $(LEX_GEN_H) $(YACC_OBJ) $(YACC_GEN) $(YACC_GEN_H) *.d src/*.d 
+	$(RM) -r dist/
 
 fclean:
 	$(RM) $(TARGET)

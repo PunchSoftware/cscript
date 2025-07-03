@@ -10,7 +10,7 @@ void yyerror( const char* );
 
 %require "3.2"
 %language "c"
-%defines "cscript_parser.h"
+%defines "src/cscript_parser.h"
 
 //%parse-param { cscript_ast_t **out_ast }
 

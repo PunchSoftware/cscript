@@ -5,7 +5,7 @@
 %}
 
 %option noyywrap
-%option header-file="cscript_lexer.h"
+%option header-file="src/cscript_lexer.h"
 
 num     [0-9]
 id      [a-z|_][a-z0-9]*

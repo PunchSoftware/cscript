@@ -1,4 +1,4 @@
-#include "cscript.h"
+#include <cscript.h>
 
 int main( int argc, char **argv ){
 		

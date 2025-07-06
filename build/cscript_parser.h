@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_SRC_CSCRIPT_PARSER_H_INCLUDED
-# define YY_YY_SRC_CSCRIPT_PARSER_H_INCLUDED
+#ifndef YY_YY_HOME_YUNGTUR_DOCUMENTS_PROJECTS_CSCRIPT_BUILD_CSCRIPT_PARSER_H_INCLUDED
+# define YY_YY_HOME_YUNGTUR_DOCUMENTS_PROJECTS_CSCRIPT_BUILD_CSCRIPT_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -44,6 +44,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 21 "/home/yungtur/Documents/Projects/cscript/src/cscript.y"
+
+	#include "ast.h"
+
+#line 53 "/home/yungtur/Documents/Projects/cscript/build/cscript_parser.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -54,16 +60,20 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    INTVAL = 258,                  /* INTVAL  */
-    FLOATVAL = 259,                /* FLOATVAL  */
-    IDENT = 260,                   /* IDENT  */
-    PLUS = 261,                    /* PLUS  */
-    MINUS = 262,                   /* MINUS  */
-    STAR = 263,                    /* STAR  */
-    SLASH = 264,                   /* SLASH  */
-    CARET = 265,                   /* CARET  */
-    LPAREN = 266,                  /* LPAREN  */
-    RPAREN = 267                   /* RPAREN  */
+    IDENT = 258,                   /* IDENT  */
+    INTVAL = 259,                  /* INTVAL  */
+    FLOATVAL = 260,                /* FLOATVAL  */
+    CHARVAL = 261,                 /* CHARVAL  */
+    STRINGVAL = 262,               /* STRINGVAL  */
+    INT = 263,                     /* INT  */
+    CHAR = 264,                    /* CHAR  */
+    FUNCTION = 265,                /* FUNCTION  */
+    LTEQ = 266,                    /* LTEQ  */
+    GTEQ = 267,                    /* GTEQ  */
+    EQ = 268,                      /* EQ  */
+    NE = 269,                      /* NE  */
+    AND = 270,                     /* AND  */
+    OR = 271                       /* OR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -72,13 +82,23 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 17 "src/cscript.y"
+#line 50 "/home/yungtur/Documents/Projects/cscript/src/cscript.y"
 
-		int intval;
-		float floatval;
-		double val; // Used for debug printing
+	char* strval;
+	int intval;
+	float floatval;
+	char charval;
+	cscript_ast_t prog;
+	stmt_t stmt;
+	decllist_t dlist;
+	funclist_t flist;
+	main_t main;
+	juxt_t juxt;
+	form_t form;
+	atom_t atom;
+	expr_t expr;
 
-#line 82 "src/cscript_parser.h"
+#line 102 "/home/yungtur/Documents/Projects/cscript/build/cscript_parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -93,4 +113,4 @@ extern YYSTYPE yylval;
 int yyparse (void);
 
 
-#endif /* !YY_YY_SRC_CSCRIPT_PARSER_H_INCLUDED  */
+#endif /* !YY_YY_HOME_YUNGTUR_DOCUMENTS_PROJECTS_CSCRIPT_BUILD_CSCRIPT_PARSER_H_INCLUDED  */

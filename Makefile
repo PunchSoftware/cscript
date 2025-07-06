@@ -14,6 +14,7 @@ YACCFLAGS := -Wcounterexamples
 LIBS := -lreis -lfl -lm
 
 SRCS := src/cscript.c
+TESTS := tests/
 OBJS := src/cscript.o
 LEX_SRCS := src/cscript.l
 LEX_GEN := src/cscript.lex.c
@@ -50,6 +51,9 @@ $(YACC_GEN): $(YACC_SRCS)
 	$(YACC) $(YACCFLAGS) -o $@ $<
 	$(info GENERATED YACC FILE $@)
 
+test:
+	$(CC) $(TESTS) -o "test-runner"
+
 clean:
 	$(RM) $(OBJS) $(LEX_OBJ) $(LEX_GEN) $(LEX_GEN_H) $(YACC_OBJ) $(YACC_GEN) $(YACC_GEN_H) *.d src/*.d 
 	$(RM) -r dist/
@@ -61,5 +65,5 @@ re:
 	$(MAKE) fclean
 	$(MAKE) all
 
-.PHONY: clean fclean re
+.PHONY: clean fclean re test
 .SILENT:

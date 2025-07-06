@@ -2,9 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 5 "src/cscript_lexer.h"
+#line 5 "/home/yungtur/Documents/Projects/cscript/build/cscript_lexer.h"
 
-#line 7 "src/cscript_lexer.h"
+#line 7 "/home/yungtur/Documents/Projects/cscript/build/cscript_lexer.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -469,9 +469,9 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 48 "src/cscript.l"
+#line 55 "/home/yungtur/Documents/Projects/cscript/src/cscript.l"
 
 
-#line 475 "src/cscript_lexer.h"
+#line 475 "/home/yungtur/Documents/Projects/cscript/build/cscript_lexer.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

@@ -1,48 +1,71 @@
 %{
 #include <math.h>
+
 #include "cscript_parser.h"
+
+void Count( void );
 
 %}
 
+%option yylineno
 %option noyywrap
-%option header-file="src/cscript_lexer.h"
 
 num     [0-9]
 id      [a-z|_][a-z0-9]*
 
-
 %%
 
+"int"				{ Count(); return INT; }
+"char"				{ Count(); return CHAR; }
+
+
 {num}+              { 
-		yylval.intval = atoi( yytext );
-		return INTVAL; 
+	Count();
+	yylval.intval = atoi( yytext );
+	return INTVAL; 
 }
 
-{num}+"."{num}*     { 
-		yylval.floatval = atof( yytext );
-		return FLOATVAL; 
+{num}+"."{num}*     {
+	Count();
+	yylval.floatval = atof( yytext );
+	return FLOATVAL; 
 }
 
-"+"                 { return PLUS; }
-"-"                 { return MINUS; }
-"*"                 { return STAR; }
-"/"                 { return SLASH; }
+"="					{ Count(); return '='; }
 
-"("	                { return LPAREN; }
-")"	                { return RPAREN; }
+"+"                 { Count(); return '+'; }
+"-"                 { Count(); return '-'; }
+"*"                 { Count(); return '*'; }
+"/"                 { Count(); return '/'; }
 
-if|then|begin|end|procedure|function        {
-            printf( "A keyword: %s\n", yytext );
-            }
+"("	                { Count(); return '('; }
+")"	                { Count(); return ')'; }
 
-{id}        printf( "An identifier: %s\n", yytext );
+{id}        		{ 
+	Count(); 
+	yylval.strval = yytext;
+	return IDENT;
+}
 
 "//".*       // One line comments
-
-[ \t\n]+         /* eat up whitespace */
-
-";"         { return ';'; }
-
+";"         		{ Count(); return ';'; }
+[ \t\v\n\f]+        { Count(); } /* eat up whitespace */
 .           printf( "Unrecognized character: %s\n", yytext );
 
 %%
+
+int col = 0;
+
+void Count( void ) {
+	for ( int i = 0; yytext[i] != '\0'; i++ ) {
+		if ( yytext[i] == '\n' ){
+			col = 0;
+		} else if ( yytext[i] == '\t' ){
+			col += 8 - ( col % 8 );
+		} else {
+			col++;
+		}
+	}
+
+	//ECHO;
+}

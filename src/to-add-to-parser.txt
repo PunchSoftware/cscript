@@ -1,0 +1,143 @@
+//%define api.prefix {lisp}
+
+%{
+#include <math.h>
+#include <stdio.h>
+#include "ast.h"
+
+prog_t ast;
+
+extern char yytext[];
+extern int col;
+extern int yylineno;
+
+extern int yylex(void);
+void yyerror( const char* );
+%}
+
+%require "3.2"
+%language "c"
+
+//%parse-param { cscript_ast_t **out_ast }
+
+%token <strval> IDENT
+%token <intval> INTVAL
+%token <floatval> FLOATVAL 
+%token <charval> CHARVAL
+%token <strval> STRINGVAL
+%token INT CHAR FUNCTION
+%token LTEQ GTEQ EQ NE AND OR
+
+%start program
+
+%left '-' '+'
+%left '*' '/' '%'
+%left '<' '>' LTEQ GTEQ
+%left EQ NE
+%left AND OR
+
+/* for dangling else */
+%expect 1
+
+
+%union value {
+	string strval;
+	int intval;
+	float floatval;
+	char charval;
+	prog_t prog;
+	expr_t expr;
+}
+
+%nterm <prog>       program
+%nterm <expr>       primary_expression
+
+%%
+
+program
+	: decl_list func_list main_func
+	{
+		$$ = create_prog( $1, $2, $3 );
+		program_ast = $$;
+	}
+;
+
+type
+	: INT 					 { $$ = CreatePrimType( TInt ); }
+;
+
+type_list_opt
+	: /* empty */ 			 { $$ = NULL; }
+	| type_list_opt			 { }
+;
+
+type_list
+	: type 					 { }
+	| type ',' type_list	 { }
+;
+
+parameter_list_opt
+  : /* empty */ 			 { $$ = NULL; }
+  | parameter_list 			 { /* todo */ }
+;
+parameter_list
+  : IDENT 					 { /* todo */ }
+  | IDENT ',' parameter_list { /* todo */ }
+;
+
+func
+	: IDENT '(' parameter_list_opt ')' ':' type '{' decl_list stmt_list RETURN expr ';' '}'
+							{ }
+;
+func_list
+	: /* empty */ { $$ = NULL; }
+	| func func_list { $$ = CreateFuncList( $1, $2 ); }
+;
+
+decl
+	: type IDENT ';' 		{ $$ = CreateDecl( $1, $2 ); }
+;
+decl_list
+	: /* empty */ 			{ $$ = NULL; }
+	| decl decl_list 		{ $$ = CreateDeclList( $1, $2 ); }
+;
+
+main_func
+	: stmt 
+	{
+		$$ = CreateMain( $3, $4, $6 );
+	}
+;
+
+expr
+	: /* empty */
+    | stmt ';'           	 { printf("Parsed expression result: %.10g\n", $1); }
+;
+
+stmt
+	: form               	 { $$ = $1; }
+	| INT IDENT '=' form     { int *val = (int*)&$4;printf("%d\n", *val);}
+;
+
+form
+	: form '+' form          { $$ = $1 + $3; }
+	| form '-' form       	 { $$ = $1 - $3; }
+	| juxt                   { $$ = $1; }
+
+;
+
+juxt
+		: '-' atom           { $$ = 0 - $2; }
+		| atom               { $$ = $1; }
+;
+
+atom
+		: '(' stmt ')'   	 { $$ = $2; }
+		| INTVAL             { $$ = $1; }
+		| FLOATVAL           { $$ = $1; }
+;
+%%
+
+void yyerror( const char *str ) {
+	fprintf( stderr, "CScript parsing error: %s\n", str );
+}

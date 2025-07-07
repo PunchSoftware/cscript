@@ -1,6 +1,8 @@
 # CScript
 
-Inspired by [hscript](https://github.com/HaxeFoundation/hscript). Not a library of babylon in terms of use cases, however, this does allow for scripting without the need for recompilation.
+Inspired by [hscript](https://github.com/HaxeFoundation/hscript). A light dependency that allows for scripting in C without the need for recompilation.
+
+**NOTE: Under heavy, active development**
 
 ## Todo
 

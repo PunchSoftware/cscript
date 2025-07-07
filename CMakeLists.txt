@@ -13,6 +13,8 @@ set(PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
 file(COPY "${SRC_DIR}/ast.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/ast.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/typechecker.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/typechecker.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/cscript.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/cscript_internals.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -40,6 +42,7 @@ add_flex_bison_dependency(LEXER PARSER)
 add_library(${TARGET} SHARED 
 		"${SRC_DIR}/cscript.c"
 		"${SRC_DIR}/ast.c"
+		"${SRC_DIR}/typechecker.c"
 		"${LEXER_OUT}"
 		"${PARSER_OUT}")
 

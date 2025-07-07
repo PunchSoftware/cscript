@@ -1,4 +1,5 @@
 #include "cscript.h"
+#include "typechecker.h"
 
 hmap_t *variables = NULL;
 
@@ -16,6 +17,9 @@ cscript_ast_t CScriptParse( char *expr ) {
 		fprintf(stderr, "Failed to parse C expression.\n");
 		return NULL;
 	}
+
+	// Type check
+	CheckProg( ast );
 
 	// Debug
 	PrintProg( ast, 0 );

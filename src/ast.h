@@ -4,9 +4,12 @@
 #ifndef PUNCH_CSCRIPT_AST_H
 #define PUNCH_CSCRIPT_AST_H
 
+#include <stdlib.h>
+#include <stdio.h>
+
 typedef char* str;
 typedef struct Prog* cscript_ast_t;
-typedef enum { TInt, TChar } typename_e;
+typedef enum { TInt, TFloat, TChar } typename_e; // Default primitive types
 typedef enum { E_op_ref, E_op_deref, 
     TPLUS, TMINUS, TNOT, TSTAR, 
     TSLASH, E_op_mod, E_op_eq, E_op_ne, 
@@ -71,6 +74,7 @@ struct Atom {
 
 struct Juxt {
   // Unary operators
+  enum { JUXTCONST, JUXTNEG } kind;
   atom_t ATOM;
   type_t type;
 };
@@ -102,7 +106,7 @@ struct StmtList {
 };
 
 struct Type {
-  enum { E_primitivetype, E_pointertype, E_arraytype, E_functiontype } kind;
+  enum { PrimitiveType, PointerType, ArrayType, FunctionType } kind;
   union {
     typename_e primitivetype;
     type_t pointertype;
@@ -170,6 +174,9 @@ juxt_t CreateJuxt( atom_t atom );
 form_t CreateFormFromJuxt( juxt_t juxt );
 form_t CreateFormFromOp( form_t left, op_e op, form_t right );
 expr_t CreateExprConst( form_t constant );
+
+type_t CreatePrimitiveType( typename_e primtype );
+
 void PrintIntAtom( atom_t aint, int indent );
 void PrintExpr( expr_t expr_node, int indent );
 void PrintConst( form_t form_node, int indent );
@@ -205,5 +212,10 @@ void print_paramlist( T_paramlist paramlist_node, int indent );
 void print_func( T_func func_node, int indent );
 void print_funclist( T_funclist funclist_node, int indent );*/
 void PrintMain( main_t main_node, int indent );
+
+
+// Util
+
+void CheckForNullNode( void *node, const char *module, const char *severity, const char *msg );
 
 #endif /* PUNCH_CSCRIPT_AST_H */

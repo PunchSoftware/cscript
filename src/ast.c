@@ -86,6 +86,13 @@ expr_t CreateExprConst( form_t constant ) {
     return val;
 }
 
+type_t CreatePrimitiveType( typename_e primtype ) {
+    type_t val = MALLOC(sizeof(*val));
+    val->kind = PrimitiveType;
+    val->primitivetype = primtype;
+    return val;
+}
+
 
 
 
@@ -109,15 +116,8 @@ void PrintIndent( int depth ) {
 
 // Printing
 
-void CheckForNullNode( void *node, const char *msg ){
-    if ( node == NULL ) {
-        fprintf( stderr, "[cscripts] FATAL: %s\n", msg );
-        exit( 1 );
-    }
-}
-
 void PrintProg( cscript_ast_t prog_node, int indent ) {
-    CheckForNullNode(prog_node, "prog_node is NULL in void print_prog(T_prog prog_node, int indent)" );
+    CheckForNullNode(prog_node, "Parser", "FATAL", "prog_node is NULL in void print_prog(T_prog prog_node, int indent)" );
     PrintIndent( indent );
     printf( "prog\n" );
     indent++;
@@ -127,7 +127,7 @@ void PrintProg( cscript_ast_t prog_node, int indent ) {
 }
 
 void PrintMain( main_t main_node, int indent ) {
-    CheckForNullNode(main_node, "main_node is NULL in void print_main(T_main main_node, int indent)" );
+    CheckForNullNode(main_node, "Parser", "FATAL", "main_node is NULL in void print_main(T_main main_node, int indent)" );
     PrintIndent( indent );
     printf( "main\n" );
     indent++;
@@ -159,7 +159,7 @@ void PrintConst( form_t form_node, int indent ) {
 
 
 void PrintExpr( expr_t expr_node, int indent ) {
-    CheckForNullNode(expr_node, "expr_node is NULL in void print_expr(T_expr expr_node, int indent)" );
+    CheckForNullNode(expr_node, "Parser", "FATAL", "expr_node is NULL in void print_expr(T_expr expr_node, int indent)" );
 
     switch ( expr_node->kind ) {
         case CONST: PrintConst( expr_node->constant, indent ); break;
@@ -184,4 +184,13 @@ void PrintIntAtom( atom_t aint, int indent ) {
   printf( "(Int " );
   PrintInt( aint->intval, -1 );
   printf( ")" );
+}
+
+// Util
+
+void CheckForNullNode( void *node, const char *module, const char *severity, const char *msg ){
+    if ( node == NULL ) {
+        fprintf( stderr, "[cscript][%s] %s: %s\n", module, severity, msg );
+        exit( 1 );
+    }
 }

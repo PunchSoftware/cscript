@@ -10,15 +10,17 @@
 #include <reis/base.h>
 #define LIBREIS_HASH
 #include <reis/hmap.h>
+
 #include "cscript_lexer.h"
 #include "cscript_parser.h"
-#include "ast.h"
+#include "cscript_types.h"
+#include "ast/ast.h"
 
 extern int yylex( void );
 extern void yyerror( const char *s );
 extern int yyparse( void );
 
-cscript_ast_t CScriptParse( char *expr );
-int CScriptInterp( cscript_ast_t ast );
+cscript_ast_t CScriptParse( char *expr, int opts );
+int CScriptInterp( cscript_ast_t ast, int opts );
 
 #endif /* PUNCH_CSCRIPT_H */

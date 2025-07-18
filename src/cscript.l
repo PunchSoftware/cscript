@@ -41,11 +41,19 @@ id      [a-z|_][a-z0-9]*
 "("	                { Count(); return '('; }
 ")"	                { Count(); return ')'; }
 
+"int"				{ Count(); return( INT ); }
+"float"				{ Count(); return( FLOAT ); }
+
+
 {id}        		{ 
 	Count(); 
 	yylval.strval = yytext;
 	return IDENT;
 }
+
+"if"				{ Count(); return( IF ); }
+"else"				{ Count(); return( ELSE ); }
+
 
 "//".*       // One line comments
 ";"         		{ Count(); return ';'; }

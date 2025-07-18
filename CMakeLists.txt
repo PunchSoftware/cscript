@@ -11,12 +11,15 @@ include_directories(.)
 set(SRC_DIR "src")
 set(PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
-file(COPY "${SRC_DIR}/ast.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/ast.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/ast" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 file(COPY "${SRC_DIR}/typechecker.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/typechecker.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/interpreter.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/interpreter.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/cscript.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 file(COPY "${SRC_DIR}/cscript_internals.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY "${SRC_DIR}/cscript_types.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 
 find_package(FLEX REQUIRED)
@@ -41,8 +44,9 @@ add_flex_bison_dependency(LEXER PARSER)
 
 add_library(${TARGET} SHARED 
 		"${SRC_DIR}/cscript.c"
-		"${SRC_DIR}/ast.c"
+		"${SRC_DIR}/ast/ast.c"
 		"${SRC_DIR}/typechecker.c"
+		"${SRC_DIR}/interpreter.c"
 		"${LEXER_OUT}"
 		"${PARSER_OUT}")
 

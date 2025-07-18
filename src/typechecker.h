@@ -7,7 +7,7 @@
 #define LIBREIS_HASH
 #include <reis/hmap.h>
 
-#include "ast.h"
+#include "ast/ast.h"
 
 typedef struct Scope *scope_t;
 
@@ -20,12 +20,12 @@ static scope_t ScopeCreate( scope_t parent );
 static void ScopeDestroy( scope_t scope );
 static type_t ScopeLookup( scope_t scope, char *ident );
 
-static void TypeError( char *msg );
+static void TypeError( const char *msg );
 
 bool CompareTypes( type_t type1, type_t type2 );
 
 // Public API
-extern void CheckProg( cscript_ast_t prog );
+void CheckProg( prog_t prog, bool enterDebugMode );
 
 // Private
 static void CheckMain( main_t main );

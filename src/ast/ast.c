@@ -55,18 +55,6 @@ stmtList_t CreateStmtList( stmt_t stmt, stmtList_t tail ) {
     return stmts;
 }
 
-stmt_t CreateDeclAssignStmt( type_t type, expr_t id, expr_t expr ) {
-    CheckForNullNode( id, PARSER, FATAL, __func__ );
-    CheckForNullNode( expr, PARSER, FATAL, __func__ );
-
-    stmt_t val = MALLOC( sizeof(*val) );
-    val->kind = TDECLASSIGNSTMT;
-    val->assignDeclStmt.type = type;
-    val->assignDeclStmt.id = id;
-    val->assignDeclStmt.value = expr;
-    return val;
-}
-
 declList_t CreateDeclList( decl_t decl, declList_t tail ) {
     CheckForNullNode( decl, PARSER, FATAL, __func__ );
 
@@ -82,6 +70,16 @@ decl_t CreateDecl( type_t type, str ident ) {
     decl_t decl = MALLOC( sizeof(*decl) );
     decl->type = type;
     decl->ident = ident;
+    return decl;
+}
+
+decl_t CreateDeclAssign( type_t type, str ident, expr_t expr ) {
+    CheckForNullNode( expr, PARSER, FATAL, __func__ );
+
+    decl_t decl = MALLOC( sizeof(*decl) );
+    decl->type = type;
+    decl->ident = ident;
+    decl->value = expr;
     return decl;
 }
 
@@ -170,7 +168,7 @@ atom_t CreateAtomChar( char c ) {
 
 atom_t CreateAtomIdent( str i ) {
     atom_t val = MALLOC( sizeof(*val) );
-    val->ident = i;
+    val->stringval = i;
     val->kind = TIDENT;
     return val;
 }
@@ -184,7 +182,7 @@ static char syms[NUM_SYMS] = { '|', '|' };
 void PrintIndent( int depth ) {
     int curr_char = 0;
     if ( depth > 0 ) {
-        for ( int i = 0; i< depth; i++ ) {
+        for ( int i = 0; i < depth; i++ ) {
             printf( "|  " );
             curr_char = (curr_char + 1) % NUM_SYMS;
         }
@@ -233,10 +231,36 @@ void PrintBinaryOp( form_t form_node, int indent ) {
     fflush( stdout );
 }
 
-void PrintConst( form_t form_node, int indent ) {
-    switch ( form_node->kind ) {
-        case FORM_CONST: PrintIntAtom( form_node->atomic->ATOM, indent ); break;
-        case FORM_BINARYOP: PrintBinaryOp( form_node, indent ); break;
+void PrintAtom( atom_t atom, int depth ) {
+    CheckForNullNode( atom, PARSER, FATAL, __func__ );
+
+    PrintIndent( depth );
+
+    switch ( atom->kind ) {
+        case TINT:
+            printf( "(Int " );
+            printf( "%d", atom->intval );
+            break;
+        case TIDENT:
+            printf( "(Var " );
+            printf( "%s", atom->ident );
+            break;
+    }
+    printf( ")" );
+}
+
+void PrintJuxt( juxt_t juxt, int indent ) {
+    switch ( juxt->kind ) {
+        case JUXT_CONST:
+            PrintAtom( juxt->ATOM, indent );
+            break;
+    }
+}
+
+void PrintConst( form_t form, int indent ) {
+    switch ( form->kind ) {
+        case FORM_CONST: PrintJuxt( form->atomic, indent ); break;
+        case FORM_BINARYOP: PrintBinaryOp( form, indent ); break;
         default: fprintf(stderr, "FATAL: unexpected form\n"); exit(1); break;
     }
 }
@@ -249,25 +273,6 @@ void PrintExpr( expr_t expr_node, int indent ) {
         case EXPR_CONST: PrintConst( expr_node->constant, indent ); break;
         default: fprintf(stderr, "FATAL: unexpected expr kind\n"); exit(1); break;
     }
-}
-
-
-
-void PrintInt( int value, int depth ) {
-    PrintIndent( depth );
-    printf( "%d", value );
-}
-
-void PrintIntAtom( atom_t aint, int indent ) {
-  if ( NULL == aint ) {
-    fprintf(stderr, "FATAL: intexpr_node is NULL in void print_intexpr(T_expr intexpr_node, int indent)\n");
-    exit(1);
-  }
-
-  PrintIndent( indent );
-  printf( "(Int " );
-  PrintInt( aint->intval, -1 );
-  printf( ")" );
 }
 
 // Util

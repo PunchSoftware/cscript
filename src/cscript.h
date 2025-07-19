@@ -8,19 +8,22 @@
 
 #include <stddef.h>
 #include <reis/base.h>
-#define LIBREIS_HASH
-#include <reis/hmap.h>
 
 #include "cscript_lexer.h"
 #include "cscript_parser.h"
 #include "cscript_types.h"
 #include "ast/ast.h"
 
+/* Private */
 extern int yylex( void );
 extern void yyerror( const char *s );
 extern int yyparse( void );
 
-cscript_ast_t CScriptParse( char *expr, int opts );
-int CScriptInterp( cscript_ast_t ast, int opts );
+/* Public API */
+csAST_t CS_Parse( char *expr, int opts );
+csValue_t* CS_Interp( csAST_t ast, int opts );
+
+void* CS_Get( str ident );
+void CS_Set( str ident, void* value );
 
 #endif /* PUNCH_CSCRIPT_H */

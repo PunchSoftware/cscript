@@ -9,10 +9,11 @@
 typedef char* str;
 
 typedef struct _prog_t* prog_t;
-typedef enum { 
-    TINT, 
-    TFLOAT, 
-    TCHAR
+typedef enum {  
+    TFLOAT,
+    TCHAR,
+    TSTRING, // TODO make typical C-string once arrays are done
+    TINT,
 } typename_t; // Default primitive types
 typedef enum { E_op_ref, E_op_deref, 
     TPLUS, TMINUS, TNOT, TSTAR, 
@@ -79,23 +80,22 @@ struct Juxt {
 };
 
 struct Atom {
-    // Make use of typename_t
-    enum { TIDENT = TCHAR + 1 } kind; // Mainly for the purpose of printing.
-    union {
-        int intval;
-        float floatval;
-        char charval;
-        str stringval;
-        str ident;
-    };
-    type_t type;
+  // Make use of typename_t
+  enum { TIDENT = TINT + 1 } kind; // Mainly for the purpose of printing.
+  union {
+      int intval;
+      float floatval;
+      char charval;
+      str stringval;
+      str ident;
+  };
+  type_t type;
 };
 
 struct Stmt {
-  enum { TASSIGNSTMT, TDECLASSIGNSTMT, TIFSTMT, TIFELSESTMT, TWHILESTMT, TCOMPOUNDSTMT } kind;
+  enum { TASSIGNSTMT, TIFSTMT, TIFELSESTMT, TWHILESTMT, TCOMPOUNDSTMT } kind;
   union {
     struct { expr_t id; expr_t value; } assignStmt;
-    struct { type_t type; expr_t id; expr_t value; } assignDeclStmt;
     struct { expr_t conditon; stmt_t body; } ifStmt;
     struct { expr_t cond; expr_t ifbranch; stmt_t elsebranch; } ifElseStmt;
     struct { expr_t cond; expr_t body; } whileStmt;
@@ -126,6 +126,7 @@ struct TypeList {
 struct Decl {
   type_t type;
   str ident;
+  expr_t value;
 };
 
 struct DeclList {

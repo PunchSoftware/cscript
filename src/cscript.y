@@ -114,9 +114,9 @@ stmt_list
 ;
 
 main_func
-	: stmt_list expr 
+	: expr 
 	{
-		$$ = CreateMain( NULL, $1, $2 );
+		$$ = CreateMain( NULL, NULL, $1 );
 	}
 ;
 
@@ -129,38 +129,6 @@ types
 type
 	: INT { $$ = CreatePrimitiveType( TINT ); }
 	| FLOAT { $$ = CreatePrimitiveType( TFLOAT ); }
-;
-
-
-/* 
-
-	Declarations 
-
-*/
-
-decl
-	: type IDENT ';' 		 	{ $$ = CreateDecl( $1, $2 ); }
-;
-
-/*
-
-	Statements
-
-*/
-
-assignment_statement
-	: type IDENT '=' expr ';' 		{ $$ = CreateDeclAssignStmt( $1, $2, $4 ); }
-	| IDENT '=' expr ';'	 		{ $$ = CreateAssignStmt( $1, $3 ); }
-;
-
-stmt
-	: if_stmt				 { $$ = $1; }
-	| assignment_statement 	 { $$ = $1; }
-;
-
-if_stmt
-	: IF '(' expr ')' stmt 	 { $$ = CreateIfStatement( $3, $5 ); }
-	| IF '(' expr ')' stmt ELSE stmt { $$ = NULL; }
 ;
 
 
@@ -188,6 +156,38 @@ atom
 	| CHARVAL           	 { $$ = CreateAtomChar( $1 ); }
 	| IDENT					 { $$ = CreateAtomIdent ( $1 ); }
 ;
+
+/* 
+
+	Declarations 
+
+*/
+
+decl
+	: type IDENT ';' 		 	{ $$ = CreateDecl( $1, $2 ); }
+	| type IDENT '=' expr ';'	{ $$ = CreateDeclAssign( $1, $2, $4 ); }
+;
+
+/*
+
+	Statements
+
+*/
+
+stmt
+	: if_stmt				 { $$ = $1; }
+	| assignment_statement 	 { $$ = $1; }
+;
+
+assignment_statement
+	:  expr '=' expr ';'	 		{ $$ = CreateAssignStmt( $1, $3 ); }
+;
+
+if_stmt
+	: IF '(' expr ')' stmt 	 { $$ = CreateIfStatement( $3, $5 ); }
+	| IF '(' expr ')' stmt ELSE stmt { $$ = NULL; }
+;
+
 %%
 
 void yyerror( const char *str ) {

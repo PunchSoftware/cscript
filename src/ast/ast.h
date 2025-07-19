@@ -17,18 +17,15 @@ prog_t CreateProg( declList_t decllist, funcList_t funclist, main_t main );
 main_t CreateMain( declList_t decllist, stmtList_t stmtlist, expr_t returnexpr );
 
 declList_t CreateDeclList( decl_t decl, declList_t tail );
-decl_t CreateDecl( type_t type, str ident );\
+decl_t CreateDecl( type_t type, str ident );
+decl_t CreateDeclAssign( type_t type, str ident, expr_t expr );
 
 stmtList_t CreateStmtList( stmt_t stmt, stmtList_t tail );
 stmt_t CreateAssignStmt( expr_t id, expr_t expr );
-stmt_t CreateDeclAssignStmt( type_t type, expr_t id, expr_t expr );
 
 
 // Printing functions
-void PrintIndent( int depth );
-void PrintString( str s, int depth );
-void PrintInt( int value, int depth );
-void PrintChar( char value, int depth );
+void PrintAtom( atom_t atom, int indent );
 void PrintProg( prog_t prog_node, int indent );
 
 expr_t CreateExprConst( form_t constant );
@@ -47,7 +44,6 @@ atom_t CreateAtomIdent( str i );
 
 type_t CreatePrimitiveType( typename_t primtype );
 
-void PrintIntAtom( atom_t aint, int indent );
 void PrintExpr( expr_t expr_node, int indent );
 void PrintConst( form_t form_node, int indent );
 

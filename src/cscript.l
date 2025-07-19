@@ -1,6 +1,7 @@
 %{
 #include <math.h>
 
+#include "cscript_util.h"
 #include "cscript_parser.h"
 
 void Count( void );
@@ -11,24 +12,36 @@ void Count( void );
 %option noyywrap
 
 num     [0-9]
-id      [a-z|_][a-z0-9]*
+letter  [a-zA-Z_]
+hex     [a-fA-F0-9]
 
 %%
 
 "int"				{ Count(); return INT; }
 "char"				{ Count(); return CHAR; }
 
-
-{num}+              { 
-	Count();
-	yylval.intval = atoi( yytext );
-	return INTVAL; 
+{num}+           			{ 
+	Count(); 
+	yylval.intval = atoi( yytext ); 
+	return( INTVAL ); 
 }
 
 {num}+"."{num}*     {
 	Count();
 	yylval.floatval = atof( yytext );
-	return FLOATVAL; 
+	return( FLOATVAL ); 
+}
+
+{letter}({letter}|{num})*  { 
+	Count(); 
+	yylval.strval = ToStrVal(yytext);
+	return( IDENT );
+}
+
+\"(\\.|[^\\"])*\"  			{
+	 Count(); 
+	 yylval.strval = ToStrVal(yytext); 
+	 return( STRINGVAL ); 
 }
 
 "="					{ Count(); return '='; }
@@ -45,11 +58,6 @@ id      [a-z|_][a-z0-9]*
 "float"				{ Count(); return( FLOAT ); }
 
 
-{id}        		{ 
-	Count(); 
-	yylval.strval = yytext;
-	return IDENT;
-}
 
 "if"				{ Count(); return( IF ); }
 "else"				{ Count(); return( ELSE ); }

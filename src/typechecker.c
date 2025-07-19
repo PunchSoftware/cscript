@@ -36,8 +36,8 @@ static void ScopeDestroy( scope_t scope ) {
 static type_t ScopeLookup( scope_t scope, char *ident ) {
     while ( NULL != scope ) {
         // check for a binding in this scope
-        type_t type = (type_t) HM_Get( scope->table, ident );
-        if ( NULL != type ) {
+        type_t type = (type_t)HM_Get( scope->table, ident );
+        if ( type != NULL ) {
             return type;
         }
         // no binding in this scope, so check the parent
@@ -45,6 +45,10 @@ static type_t ScopeLookup( scope_t scope, char *ident ) {
     }
 
     return NULL; // No binding found in any scope :[
+}
+
+static void ScopeUpdate( char *ident, type_t type ) {
+    HM_Set( current_scope->table, ident, (void*)type );
 }
 
 void CheckProg( prog_t prog, bool enterDebugMode ) {
@@ -61,7 +65,7 @@ void CheckProg( prog_t prog, bool enterDebugMode ) {
     // create the global scope
     current_scope = ScopeCreate( NULL );
     // add the global declarations
-    //check_decllist(prog->decllist);
+    CheckDeclList( prog->decllist );
     // check the function definitions
     //check_funclist(prog->funclist);
     // check the main function
@@ -69,6 +73,26 @@ void CheckProg( prog_t prog, bool enterDebugMode ) {
     
     printf( "[cscript][debug] passed type checker.\n" );
     ScopeDestroy( current_scope );
+}
+
+static void CheckDeclList( declList_t decls ) {
+    while ( decls != NULL ) {
+        CheckDecl( decls->decl );
+        decls = decls->tail;
+    }
+}
+
+static void CheckDecl( decl_t decl ) {
+    CheckForNullNode( decl, INTERPRETER, FATAL, __func__ );
+    
+    if ( debugMode ) {
+        fprintf( stdout, 
+            "[cscript ~ Parser] updating current scope with: %s of type TODO\n", 
+            decl->ident );
+        // print type
+    }
+
+    ScopeUpdate( decl->ident, decl->type );
 }
 
 static void CheckMain( main_t main ) {
@@ -103,6 +127,15 @@ static type_t CheckAtom( atom_t atom ) {
         case TFLOAT:
             atom->type = FLOATTYPE;
             break;
+        case TIDENT: {
+            type_t scopeType = (type_t)ScopeLookup( current_scope, atom->ident );
+            if ( scopeType == NULL ) {
+                fprintf( stderr, "[cscript] TYPE ERR: variable %s not in current scope.\n", atom->ident );
+                exit( 1 );
+            }
+            atom->type =  scopeType;
+            break;
+        }
         default:
             TypeError( "Atom type unknown" );
     }

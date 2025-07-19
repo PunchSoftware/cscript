@@ -8,19 +8,21 @@
 
 #include "ast/ast.h"
 
-typedef prog_t cscript_ast_t;
+typedef prog_t csAST_t;
+typedef decl_t csVar_t;
+typedef struct Atom csValue_t;
 
 typedef enum {
     DEFAULT = 0,
     DEBUG = -1,
-} sharedOpts_t;
+} csSharedOpts_t;
 
 typedef enum {
     SHOW_AST = 1
-} astOpts_t;
+} csParseOpts_t;
 
 typedef enum {
     NO_TYPECHECK = 1
-} interpOpts_t;
+} csInterpOpts_t;
 
 #endif /* PUNCH_CSCRIPT_TYPES_H */

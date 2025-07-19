@@ -29,6 +29,9 @@ void CheckProg( prog_t prog, bool enterDebugMode );
 
 // Private
 static void CheckMain( main_t main );
+static void CheckDeclList( declList_t decls );
+static void CheckDecl( decl_t decl );
+
 static void CheckExpr( expr_t expr );
 
 

@@ -1,37 +1,75 @@
+#include "cscript_types.h"
 #include <reis/base.h>
+#define LIBREIS_HASH
+#include <reis/hmap.h>
 
 #include "interpreter.h"
 #include "ast/ast.h"
 #include "ast/ast_types.h"
+#include "cscript_internals.h"
 
 static bool debugMode = false;
 
 /* TODO this module is still under development, MANY features are still mssing. */
 
-int InterpProg( prog_t prog, bool enterDebugMode ) {
+csValue_t* InterpProg( prog_t prog, bool enterDebugMode ) {
     if ( enterDebugMode ) {
         debugMode = true;
     }
 
-    int res = InterpMain( prog->main );
+    // add the global declarations
+    InterpDeclList( prog->decllist );
+
+    csValue_t *res = (csValue_t*)InterpMain( prog->main );
     
-    printf( "[cscript][debug] finished interpretation.\n" );
+    printf( "[cscript ~ debug] finished interpretation.\n" );
 
     return res;
 }
 
-static int InterpMain( main_t main ) {
+static void InterpDeclList( declList_t decls ) {
+    while ( decls != NULL ) {
+        InterpDecl( decls->decl );
+        decls = decls->tail;
+    }
+}
+
+static void InterpDecl( decl_t decl ) {
+    CheckForNullNode( decl, INTERPRETER, FATAL, __func__ );
+    
+    str ident = decl->ident;
+    int *value = (int*)MALLOC( sizeof(int) );
+    *value = InterpExpr( decl->value )->intval;
+
+    int *tableValue = (int*)HM_Get( variables, ident );
+
+    if ( debugMode ) {
+        fprintf( stdout, 
+            "[cscript ~ Interpreter] Setting variable: %s to %d\n", ident, *value );
+    }
+
+    if ( tableValue != NULL ) {
+        if ( debugMode ) {
+            fprintf( stdout, 
+        "[cscript ~ Interpreter] variable '%s' is being set externally to %d\n", ident, *tableValue );
+        }
+    } else {
+        HM_Set( variables, ident, (void*)value );
+    }    
+}
+
+static atom_t InterpMain( main_t main ) {
   return InterpExpr( main->returnexpr );
 }
 
-static int InterpExpr( expr_t expr ) {
+static atom_t InterpExpr( expr_t expr ) {
     CheckForNullNode( expr, INTERPRETER, FATAL, __func__ );
 
-    int res = 0;
+    atom_t res;
 
     switch ( expr->kind ) {
         case EXPR_CONST: 
-            res = InterpConst( expr->constant )->intval; 
+            res = InterpConst( expr->constant );
             break;
         default: 
             fprintf( stderr, "FATAL: unexpected expr kind\n" ); 
@@ -41,17 +79,44 @@ static int InterpExpr( expr_t expr ) {
     return res;
 }
 
+static atom_t InterpIdent( atom_t atom ) {
+
+    int *value = (int*)HM_Get( variables, atom->ident );
+    if ( value == NULL ) {
+        fprintf( stderr,
+            "[cscript ~ Interpreter] unknown variable '%s'\n",
+        atom->ident );
+        exit( 1 );
+    }
+    
+    switch ( atom->type->kind ) {
+        case PrimitiveType: {
+            switch ( atom->type->primitivetype ) {
+                case TINT:
+                    atom->intval = *value;
+                    break;
+            }
+        }
+    }
+
+    return atom;
+}
+
 static atom_t InterpConst( form_t form ) {
 
     switch ( form->kind ) {
         case FORM_CONST: {
             atom_t a = InterpJuxt( form->atomic );
             switch ( a->kind ) {
-                case TINT:
                 case TFLOAT:
                 case TCHAR:
+                case TSTRING:
+                case TINT:
                     return a;
+                case TIDENT:
+                    return InterpIdent( a );
                 default:
+                    fprintf( stderr, "No known type of Atom.\n" );
                     exit( 1 );
             }
         }

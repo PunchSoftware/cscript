@@ -1,8 +1,11 @@
 #include <iso646.h>
 #include <stdarg.h>
+#define LIBREIS_HASH
+#include <reis/hmap.h>
 
 #include "cscript.h"
 #include "cscript_types.h"
+#include "cscript_internals.h"
 #include "typechecker.h"
 #include "interpreter.h"
 
@@ -25,9 +28,9 @@ static void CScriptError( const char *msg ) {
  * @note Options look like, so far:
  * 
  */
-cscript_ast_t CScriptParse( char *expr, int opts ) {
+csAST_t CS_Parse( char *expr, int opts ) {
 	variables = HM_New();
-	extern cscript_ast_t ast;
+	extern csAST_t ast;
 
 	// Options
 	bool shouldPrintAST = false;
@@ -46,11 +49,10 @@ cscript_ast_t CScriptParse( char *expr, int opts ) {
 			break;
 	}
 
-	//HM_Set( variables, "dd", (void*)2);
 	YY_BUFFER_STATE buffer_state = NULL;
 	buffer_state = yy_scan_string( expr );
 	int ret = yyparse();
-	yy_delete_buffer(buffer_state);
+	yy_delete_buffer( buffer_state );
 
 	if ( ret != 0 ) {
 		CScriptError( "Failed to parse C expression." );
@@ -64,13 +66,13 @@ cscript_ast_t CScriptParse( char *expr, int opts ) {
 	return ast;
 }
 
-int CScriptInterp( cscript_ast_t ast, int opts ) {
+csValue_t* CS_Interp( csAST_t ast, int opts ) {
 	if ( ast == NULL ) {
 		CScriptError( "AST passed to CScriptInterp was NULL." );
-		return -1;
+		return NULL;
 	}
 
-	int res = 0;
+	csValue_t *res;
 
 	// Options
 	bool shouldTypeCheck = true;
@@ -97,4 +99,13 @@ int CScriptInterp( cscript_ast_t ast, int opts ) {
 	
 
 	return res;
+}
+
+void* CS_Get( str ident ) {
+	void* value = HM_Get( variables, ident );
+	return value;
+}
+
+void CS_Set( str ident, void* value ) {
+	HM_Set( variables, ident, value );
 }

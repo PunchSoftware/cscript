@@ -10,7 +10,7 @@
 
 typedef prog_t csAST_t;
 typedef decl_t csVar_t;
-typedef struct Atom csValue_t;
+typedef struct atom_t csValue_t;
 
 typedef enum {
     DEFAULT = 0,

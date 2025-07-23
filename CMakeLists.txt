@@ -11,18 +11,36 @@ include_directories(.)
 set(SRC_DIR "src")
 set(PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 
-file(COPY "${SRC_DIR}/ast" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+set(FILES_TRANSPORT
+		"${SRC_DIR}/typechecker.h"
+		"${SRC_DIR}/typechecker.c"
+		"${SRC_DIR}/interpreter.h"
+		"${SRC_DIR}/interpreter.c"
+		"${SRC_DIR}/cscript.h"
+		"${SRC_DIR}/cscript_util.h"
+		"${SRC_DIR}/cscript_util.c"
+		"${SRC_DIR}/cscript_internals.h"
+		"${SRC_DIR}/cscript_types.h"
+)
 
-file(COPY "${SRC_DIR}/typechecker.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/typechecker.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/interpreter.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/interpreter.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/cscript.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/cscript_util.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/cscript_util.c" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/cscript_internals.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY "${SRC_DIR}/cscript_types.h" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+# Copy AST package
+add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ast"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "../${SRC_DIR}/ast" "${CMAKE_CURRENT_BINARY_DIR}/ast"
+    DEPENDS "${SRC_DIR}/ast"
+)
 
+foreach(file ${FILES_TRANSPORT})
+    get_filename_component(fname ${file} NAME)
+    add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${fname}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "../${file}" "${CMAKE_CURRENT_BINARY_DIR}/${fname}"
+        DEPENDS "${file}"
+    )
+    list(APPEND COPIED_FILES "${CMAKE_CURRENT_BINARY_DIR}/${fname}")
+endforeach()
+
+add_custom_target(copy_sources ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ast ${COPIED_FILES})
 
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
@@ -36,12 +54,10 @@ flex_target(LEXER
 		"${SRC_DIR}/cscript.l" 
 		${LEXER_OUT} 
     DEFINES_FILE "${PARSER_DIR}/cscript_lexer.h")
-bison_target(PARSER 
-            "${SRC_DIR}/cscript.y"
-			"${PARSER_OUT}"
-            DEFINES_FILE "${PARSER_DIR}/cscript_parser.h" 
-            REPORT_FILE ${CMAKE_BINARY_DIR}/bison_report.txt
-			OPTIONS -Wcounterexamples)
+bison_target(PARSER "${SRC_DIR}/cscript.y" "${PARSER_OUT}"
+             DEFINES_FILE "${PARSER_DIR}/cscript_parser.h" 
+             REPORT_FILE ${CMAKE_BINARY_DIR}/bison_report.txt
+						 COMPILE_FLAGS -Wcounterexamples)
 add_flex_bison_dependency(LEXER PARSER)
 
 add_library(${TARGET} SHARED 
@@ -58,15 +74,15 @@ include_directories(${SRC_DIR})
 target_include_directories(${TARGET} PRIVATE ${PARSER_DIR})
 target_link_libraries(${TARGET} ${LIBS})
 
+# Testing binary
+add_executable(tester tests/tester.c)
+target_link_libraries(tester ${TARGET} ${LIBS})
+target_include_directories(tester PRIVATE ${CMAKE_BINARY_DIR})
+#add_executable(Arithmetic tests/+arithmetic.c)
+
 enable_testing()
 
-add_executable(Arithmetic tests/+arithmetic.c)
-target_link_libraries(Arithmetic ${TARGET} ${LIBS})
-target_include_directories(Arithmetic PRIVATE ${CMAKE_BINARY_DIR})
-
-
-add_test(NAME Arithmetic COMMAND Arithmetic)
-
-
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
-    "cscript.h;cscript_internals.h")
+add_test(
+		NAME tester
+		COMMAND tester 
+)

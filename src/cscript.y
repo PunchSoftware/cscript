@@ -18,12 +18,12 @@ void yyerror( const char* );
 
 %}
 
+%require "3.2"
+%language "c"
+
 %code requires {
 	#include "ast/ast.h"
 }
-
-%require "3.2"
-%language "c"
 
 //%parse-param { prog_t **out_ast }
 

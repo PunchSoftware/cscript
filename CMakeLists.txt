@@ -55,9 +55,9 @@ flex_target(LEXER
 		${LEXER_OUT} 
     DEFINES_FILE "${PARSER_DIR}/cscript_lexer.h")
 bison_target(PARSER "${SRC_DIR}/cscript.y" "${PARSER_OUT}"
-             DEFINES_FILE "${PARSER_DIR}/cscript_parser.h" 
-             REPORT_FILE ${CMAKE_BINARY_DIR}/bison_report.txt
-						 COMPILE_FLAGS -Wcounterexamples)
+             DEFINES_FILE "${PARSER_DIR}/cscript_parser.h")
+						 #REPORT_FILE ${CMAKE_BINARY_DIR}/bison_report.txt
+						 #COMPILE_FLAGS -Wcounterexamples)
 add_flex_bison_dependency(LEXER PARSER)
 
 add_library(${TARGET} SHARED 
